@@ -1,5 +1,19 @@
 const mongoose = require('mongoose')
-const toDoListItemSchema = require('./toDoListItem')
+
+const toDoListItemSchema = new mongoose.Schema({
+    name: {
+        type: mongoose.Schema.Types.String,
+        required: true
+    },
+    description: {
+        type: mongoose.Schema.Types.String,
+        required: false
+    },
+    time: {
+        type: mongoose.Schema.Types.String,
+        required: false
+    }
+})
 
 const toDoListSchema = new mongoose.Schema({
     name: {
