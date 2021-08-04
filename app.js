@@ -4,6 +4,10 @@ const path = require('path');
 const logger = require('morgan');
 const authenticate = require('./authenticate');
 
+const profileRouter = require('./routes/profileRouter');
+const toDoListsRouter = require('./routes/toDoListsRouter');
+const usersRouter = require('./routes/usersRouter');
+
 const mongoose = require('mongoose');
 
 const config = require('./config');
@@ -28,13 +32,17 @@ app.all('*', (req, res, next) => {
     }
 });
 
+app.set('view engine', 'jade');
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use();
+app.use('/profile', profileRouter);
+app.use('/toDoLists', toDoListsRouter);
+app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

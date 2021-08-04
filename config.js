@@ -1,5 +1,5 @@
 module.exports = {
     'secretKey': '12345-67890-09876-54321',
     'memoryType': 'Persistent',
-    'mongoUrl': 'mongodb://localhost:27017/conFusion'
+    'mongoUrl': 'mongodb://localhost:27017/testTask'
 };

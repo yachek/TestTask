@@ -175,7 +175,7 @@ usersRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-
+/*
 usersRouter
     .route("/:userId/lists/:listId/:itemId")
 
@@ -185,14 +185,14 @@ usersRouter
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(toDoList.itemsArr._id(req.params.itemId));
-                /*for(let i in toDoList.itemsArr) {
+                for(let i in toDoList.itemsArr) {
                     if (i._id === req.params.itemId) {
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.json(i);
                         break;
                     }
-                }*/
+                }
             }, (err) => next(err))
             .catch((err) => next(err));
     })
@@ -233,5 +233,5 @@ usersRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-
+*/
 module.exports = usersRouter

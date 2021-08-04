@@ -98,7 +98,7 @@ toDoListsRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-
+/*
 toDoListsRouter
     .route("/:listId/:itemId")
 
@@ -115,7 +115,7 @@ toDoListsRouter
                         res.json(i);
                         break;
                     }
-                }*/
+                }
             }, (err) => next(err))
             .catch((err) => next(err));
     })
@@ -156,5 +156,5 @@ toDoListsRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-
+*/
 module.exports = toDoListsRouter
