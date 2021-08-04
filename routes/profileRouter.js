@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 
 const profileRouter = express.Router();
 
+const auth = require('../authenticate')
+
 const User = require('../models/user');
 
 profileRouter.use(bodyParser.json());
@@ -10,7 +12,7 @@ profileRouter.use(bodyParser.json());
 profileRouter
     .route("/")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         User.findById(req.user._id)
             .then((user) => {
                 user.password = '';
@@ -21,7 +23,7 @@ profileRouter
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         User.findByIdAndUpdate(req.user._id, req.body)
             .then((user) => {
                 user.password = '';
@@ -37,7 +39,7 @@ profileRouter
         res.end('POST operation not supported on /profile');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, (req, res, next) => {
         User.findByIdAndDelete(req.user._id)
             .then((user) => {
                 res.statusCode = 200;

@@ -26,6 +26,7 @@ usersRouter
         res.end('PUT operation not supported on /users');
     })
     .post((req, res, next) => {
+        console.log(req.body)
         User.create(req.body)
             .then((user) => {
                 res.statusCode = 200;
@@ -36,7 +37,7 @@ usersRouter
     })
     .delete((req, res, next) => {
         User.remove({})
-            .then((res) => {
+            .then((resp) => {
                 res.statusCode = 200;
                 res.end('Success!');
             }, (err) => next(err))
