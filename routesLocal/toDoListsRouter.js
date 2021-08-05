@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 
 const storage = require('../localMemory')
 
+const auth = require('../auth/authenticateDB')
+
 const toDoListsRouter = express.Router();
 
 toDoListsRouter.use(bodyParser.json());
@@ -10,7 +12,7 @@ toDoListsRouter.use(bodyParser.json());
 toDoListsRouter
     .route("/")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         const lists = storage.toDoList.get(req.user.email)
         if(lists !== undefined) {
             res.statusCode = 200;
@@ -23,12 +25,12 @@ toDoListsRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /toDoList');
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists.push({
@@ -50,7 +52,7 @@ toDoListsRouter
         res.json(storage.toDoList.get(req.user.email));
     })
 
-    .delete(( req, res, next) => {
+    .delete(auth.auth, ( req, res, next) => {
         storage.toDoList.del(req.user.email);
         res.statusCode = 200;
         res.end('success');
@@ -59,7 +61,7 @@ toDoListsRouter
 toDoListsRouter
     .route("/:listId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         if (storage.toDoList.get(req.user.email) !== undefined) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -70,7 +72,7 @@ toDoListsRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId] = req.body;
@@ -83,7 +85,7 @@ toDoListsRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             req.body._id = arrOfLists[req.params.listId].items.length
@@ -97,7 +99,7 @@ toDoListsRouter
         }
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId].splice(req.params.listId);
@@ -112,7 +114,7 @@ toDoListsRouter
 toDoListsRouter
     .route("/:listId/:itemId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         if (storage.toDoList.get(req.user.email) !== undefined) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
@@ -123,7 +125,7 @@ toDoListsRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId].items[req.params.itemId] = req.body;
@@ -136,12 +138,12 @@ toDoListsRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /:listId/:itemId');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId].items.splice(req.params.itemId);

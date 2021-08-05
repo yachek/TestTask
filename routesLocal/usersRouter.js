@@ -11,7 +11,7 @@ usersRouter.use(bodyParser.json());
 
 usersRouter
     .route("/")
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         const users = []
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -21,11 +21,11 @@ usersRouter
         res.setHeader('Content-Type', 'application/json');
         res.json(users);
     })
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /users');
     })
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         console.log(req.body)
         const stats = storage.users.getStats()
         console.log(stats)
@@ -40,7 +40,7 @@ usersRouter
             res.json(storage.users.get(req.body.email));
         }
     })
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         storage.users.flushAll();
         res.statusCode = 200;
         res.end('success');
@@ -49,7 +49,7 @@ usersRouter
 usersRouter
     .route("/:userId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -67,7 +67,7 @@ usersRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -95,12 +95,12 @@ usersRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /profile');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -122,7 +122,7 @@ usersRouter
 usersRouter
     .route("/:userId/lists")
 
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -143,12 +143,12 @@ usersRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /users');
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -183,7 +183,7 @@ usersRouter
         }
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -205,7 +205,7 @@ usersRouter
 usersRouter
     .route("/:userId/lists/:listId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -226,7 +226,7 @@ usersRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -249,7 +249,7 @@ usersRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -273,7 +273,7 @@ usersRouter
         }
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -298,7 +298,7 @@ usersRouter
 usersRouter
     .route("/:userId/lists/:listId/:itemId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -319,7 +319,7 @@ usersRouter
         }
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {
@@ -342,12 +342,12 @@ usersRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /:listId/:itemId');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         let found = false;
         const keys = storage.users.keys()
         for (let key in keys) {

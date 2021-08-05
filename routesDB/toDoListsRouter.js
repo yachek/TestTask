@@ -23,7 +23,7 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /toDoList');
     })
@@ -104,7 +104,7 @@ toDoListsRouter
 toDoListsRouter
     .route("/:listId/:itemId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 res.statusCode = 200;
@@ -122,7 +122,7 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr._id(req.params.itemId).name = req.body.name;
@@ -139,12 +139,12 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /:listId/:itemId');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr._id(req.params.itemId).remove();

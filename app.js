@@ -15,15 +15,6 @@ const mongoose = require('mongoose');
 
 const config = require('./config');
 
-const url = config.mongoUrl;
-const connect = mongoose.connect(url);
-
-connect.then((db) => {
-    console.log("Connected correctly to server!");
-}, (err) => {
-    console.log(err);
-});
-
 const app = express();
 
 app.all('*', (req, res, next) => {
@@ -44,6 +35,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 if(config.memoryType === 'Persistent') {
+    const url = config.mongoUrl;
+    const connect = mongoose.connect(url);
+
+    connect.then((db) => {
+        console.log("Connected correctly to server!");
+    }, (err) => {
+        console.log(err);
+    });
     app.use('/profile', profileRouterDB);
     app.use('/toDoLists', toDoListsRouterDB);
     app.use('/users', usersRouterDB);

@@ -46,7 +46,7 @@ profileRouter
         }
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /profile');
     })
