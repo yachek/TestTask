@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 const profileRouter = express.Router();
 
-const auth = require('../authenticate')
+const auth = require('../auth/authenticateDB')
 
 const User = require('../models/user');
 
@@ -24,7 +24,9 @@ profileRouter
     })
 
     .put(auth.auth, (req, res, next) => {
-        User.findByIdAndUpdate(req.user._id, req.body)
+        User.findByIdAndUpdate(req.user._id, {
+            $set: req.body
+        })
             .then((user) => {
                 user.password = '';
                 res.statusCode = 200;
@@ -43,7 +45,7 @@ profileRouter
         User.findByIdAndDelete(req.user._id)
             .then((user) => {
                 res.statusCode = 200;
-                res.end('Deleting successful!')
+                res.end('Success!')
             }, (err) => next(err))
             .catch((err) => next(err));
     })

@@ -1,36 +1,110 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const User = require("../models/user");
 
-const ToDoList = require('../models/toDoList');
+const User = require('../models/user');
 
-const toDoListsRouter = express.Router();
+const auth = require('../auth/authenticateDB');
+const ToDoList = require("../models/toDoList");
 
-toDoListsRouter.use(bodyParser.json());
+const usersRouter = express.Router();
 
-toDoListsRouter
+usersRouter.use(bodyParser.json());
+
+usersRouter
     .route("/")
-
-    .get((req, res, next) => {
-        ToDoList.find({user: req.user._id})
-            .then((toDoLists) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
+        User.find({})
+            .then((users) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(toDoLists);
+                res.json(users);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
+    .put((req, res, next) => {
+        res.statusCode = 403;
+        res.end('PUT operation not supported on /users');
+    })
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
+        console.log(req.body)
+        User.create(req.body)
+            .then((user) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(user);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
+        User.remove({})
+            .then((resp) => {
+                res.statusCode = 200;
+                res.end('Success!');
             }, (err) => next(err))
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
-        res.statusCode = 403;
-        res.end('PUT operation not supported on /toDoList');
+usersRouter
+    .route("/:userId")
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
+        User.findById(req.params.userId)
+            .then((user) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(user);
+            }, (err) => next(err))
+            .catch((err) => next(err));
     })
 
-    .post((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
+        User.findByIdAndUpdate(req.params.userId, req.body)
+            .then((user) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(user);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
+
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
+        res.statusCode = 403;
+        res.end('POST operation not supported on /profile');
+    })
+
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
+        User.findByIdAndDelete(req.params.userId)
+            .then((user) => {
+                res.statusCode = 200;
+                res.end('Deleting successful!')
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
+
+usersRouter
+    .route("/:userId/lists")
+
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
+        ToDoList.find({
+            user: req.params.userId
+        })
+            .then((toDoList) => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(toDoList);
+            }, (err) => next(err))
+            .catch((err) => next(err));
+    })
+
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
+        res.statusCode = 403;
+        res.end('PUT operation not supported on /users');
+    })
+
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.create({
             name: req.body.name,
             description: req.body.description,
-            user: req.user._id
+            user: req.params.userId
         })
             .then((toDoList) => {
                 console.log('list Created ', toDoList);
@@ -41,19 +115,21 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .delete(( req, res, next) => {
-        ToDoList.findByIdAndDelete(req.body._id)
-            .then((user) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
+        ToDoList.remove({
+            user: req.params.userId
+        })
+            .then((toDoList) => {
                 res.statusCode = 200;
-                res.end('Deleting successful!')
+                res.end('Deleting successful!');
             }, (err) => next(err))
             .catch((err) => next(err));
     })
 
-toDoListsRouter
-    .route("/:listId")
+usersRouter
+    .route("/:userId/lists/:listId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 res.statusCode = 200;
@@ -63,7 +139,7 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findByIdAndUpdate(req.params.listId, {
             $set: req.body
         })
@@ -75,7 +151,7 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr.push(req.body);
@@ -90,7 +166,7 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         User.findByIdAndDelete(req.params.listId)
             .then((user) => {
                 res.statusCode = 200;
@@ -98,11 +174,11 @@ toDoListsRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-/*
-toDoListsRouter
-    .route("/:listId/:itemId")
 
-    .get((req, res, next) => {
+usersRouter
+    .route("/:userId/lists/:listId/:itemId")
+
+    .get(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 res.statusCode = 200;
@@ -115,12 +191,12 @@ toDoListsRouter
                         res.json(i);
                         break;
                     }
-                }
+                }*/
             }, (err) => next(err))
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr._id(req.params.itemId).name = req.body.name;
@@ -137,12 +213,12 @@ toDoListsRouter
             .catch((err) => next(err));
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, auth.isAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /:listId/:itemId');
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, auth.isAdmin, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr._id(req.params.itemId).remove();
@@ -156,5 +232,5 @@ toDoListsRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-*/
-module.exports = toDoListsRouter
+
+module.exports = usersRouter

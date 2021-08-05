@@ -1,112 +1,38 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const User = require("../models/user");
 
-const User = require('../models/user');
+const auth = require('../auth/authenticateDB')
 
-const authenticate = require('../authenticate');
-const ToDoList = require("../models/toDoList");
+const ToDoList = require('../models/toDoList');
 
-const usersRouter = express.Router();
+const toDoListsRouter = express.Router();
 
-usersRouter.use(bodyParser.json());
+toDoListsRouter.use(bodyParser.json());
 
-usersRouter
+toDoListsRouter
     .route("/")
-    .get((req, res, next) => {
-        User.find({})
-            .then((users) => {
+
+    .get(auth.auth, (req, res, next) => {
+        ToDoList.find({user: req.user._id})
+            .then((toDoLists) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(users);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-    .put((req, res, next) => {
-        res.statusCode = 403;
-        res.end('PUT operation not supported on /users');
-    })
-    .post((req, res, next) => {
-        console.log(req.body)
-        User.create(req.body)
-            .then((user) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(user);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-    .delete((req, res, next) => {
-        User.remove({})
-            .then((resp) => {
-                res.statusCode = 200;
-                res.end('Success!');
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-
-usersRouter
-    .route("/:userId")
-    .get((req, res, next) => {
-        User.findById(req.params.userId)
-            .then((user) => {
-                user.password = '';
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(user);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-
-    .put((req, res, next) => {
-        User.findByIdAndUpdate(req.params.userId, req.body)
-            .then((user) => {
-                user.password = '';
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(user);
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-
-    .post((req, res, next) => {
-        res.statusCode = 403;
-        res.end('POST operation not supported on /profile');
-    })
-
-    .delete((req, res, next) => {
-        User.findByIdAndDelete(req.params.userId)
-            .then((user) => {
-                res.statusCode = 200;
-                res.end('Deleting successful!')
-            }, (err) => next(err))
-            .catch((err) => next(err));
-    })
-
-usersRouter
-    .route("/:userId/lists")
-
-    .get((req, res, next) => {
-        ToDoList.find({
-            user: req.params.userId
-        })
-            .then((toDoList) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(toDoList);
+                res.json(toDoLists);
             }, (err) => next(err))
             .catch((err) => next(err));
     })
 
     .put((req, res, next) => {
         res.statusCode = 403;
-        res.end('PUT operation not supported on /users');
+        res.end('PUT operation not supported on /toDoList');
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         ToDoList.create({
             name: req.body.name,
             description: req.body.description,
-            user: req.params.userId
+            user: req.user._id
         })
             .then((toDoList) => {
                 console.log('list Created ', toDoList);
@@ -117,21 +43,19 @@ usersRouter
             .catch((err) => next(err));
     })
 
-    .delete((req, res, next) => {
-        ToDoList.remove({
-            user: req.params.userId
-        })
-            .then((toDoList) => {
+    .delete(auth.auth, ( req, res, next) => {
+        ToDoList.findByIdAndDelete(req.body._id)
+            .then((user) => {
                 res.statusCode = 200;
-                res.end('Deleting successful!');
+                res.end('Deleting successful!')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
 
-usersRouter
-    .route("/:userId/lists/:listId")
+toDoListsRouter
+    .route("/:listId")
 
-    .get((req, res, next) => {
+    .get(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 res.statusCode = 200;
@@ -141,7 +65,7 @@ usersRouter
             .catch((err) => next(err));
     })
 
-    .put((req, res, next) => {
+    .put(auth.auth, (req, res, next) => {
         ToDoList.findByIdAndUpdate(req.params.listId, {
             $set: req.body
         })
@@ -153,7 +77,7 @@ usersRouter
             .catch((err) => next(err));
     })
 
-    .post((req, res, next) => {
+    .post(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
                 toDoList.itemsArr.push(req.body);
@@ -168,7 +92,7 @@ usersRouter
             .catch((err) => next(err));
     })
 
-    .delete((req, res, next) => {
+    .delete(auth.auth, (req, res, next) => {
         User.findByIdAndDelete(req.params.listId)
             .then((user) => {
                 res.statusCode = 200;
@@ -176,9 +100,9 @@ usersRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-/*
-usersRouter
-    .route("/:userId/lists/:listId/:itemId")
+
+toDoListsRouter
+    .route("/:listId/:itemId")
 
     .get((req, res, next) => {
         ToDoList.findById(req.params.listId)
@@ -186,14 +110,14 @@ usersRouter
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(toDoList.itemsArr._id(req.params.itemId));
-                for(let i in toDoList.itemsArr) {
+                /*for(let i in toDoList.itemsArr) {
                     if (i._id === req.params.itemId) {
                         res.statusCode = 200;
                         res.setHeader('Content-Type', 'application/json');
                         res.json(i);
                         break;
                     }
-                }
+                }*/
             }, (err) => next(err))
             .catch((err) => next(err));
     })
@@ -234,5 +158,5 @@ usersRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-*/
-module.exports = usersRouter
+
+module.exports = toDoListsRouter

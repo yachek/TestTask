@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const userSchema = new mongoose.Schema({
     email: {
         type: mongoose.Schema.Types.String,
-        required: true
+        required: true,
+        unique: true
     },
     password: {
         type: mongoose.Schema.Types.String,
@@ -17,10 +18,9 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.String,
         required: true
     },
-    age: {
-        type: mongoose.Schema.Types.Number,
-        required: true,
-        min: 14
+    isAdmin: {
+        type: mongoose.Schema.Types.Boolean,
+        default: false
     }
 })
 

@@ -12,6 +12,10 @@ const toDoListItemSchema = new mongoose.Schema({
     time: {
         type: mongoose.Schema.Types.String,
         required: false
+    },
+    done: {
+        type: mongoose.Schema.Types.Boolean,
+        default: false
     }
 })
 

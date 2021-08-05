@@ -2,11 +2,14 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
-const authenticate = require('./authenticate');
 
-const profileRouter = require('./routes/profileRouter');
-const toDoListsRouter = require('./routes/toDoListsRouter');
-const usersRouter = require('./routes/usersRouter');
+const profileRouterDB = require('./routesDB/profileRouter');
+const toDoListsRouterDB = require('./routesDB/toDoListsRouter');
+const usersRouterDB = require('./routesDB/usersRouter');
+
+const profileRouterLocal = require('./routesLocal/profileRouter');
+const toDoListsRouterLocal = require('./routesLocal/toDoListsRouter');
+const usersRouterLocal = require('./routesLocal/usersRouter');
 
 const mongoose = require('mongoose');
 
@@ -40,9 +43,15 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/profile', profileRouter);
-app.use('/toDoLists', toDoListsRouter);
-app.use('/users', usersRouter);
+if(config.memoryType === 'Persistent') {
+    app.use('/profile', profileRouterDB);
+    app.use('/toDoLists', toDoListsRouterDB);
+    app.use('/users', usersRouterDB);
+} else {
+    app.use('/profile', profileRouterLocal);
+    app.use('/toDoLists', toDoListsRouterLocal);
+    app.use('/users', usersRouterLocal);
+}
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
