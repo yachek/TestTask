@@ -17,9 +17,7 @@ exports.auth = (req, res, next) => {
     const user = auth[0];
     const pass = auth[1];*/
     const user = req.headers.email;
-    //console.log(user)
     const pass = CryptoAES.decrypt(req.headers.password, user).toString(CryptoENC)
-    //console.log(user, " ", pass)
     User.findOne({
         email: user
     })

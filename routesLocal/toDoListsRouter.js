@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 
 const storage = require('../localMemory')
 
-const auth = require('../auth/authenticateDB')
+const auth = require('../auth/authenticateLocal')
 
 const toDoListsRouter = express.Router();
 
@@ -37,14 +37,15 @@ toDoListsRouter
                 _id: arrOfLists.length,
                 name: req.body.name,
                 description: req.body.description,
-                items: []
+                itemsArr: []
             });
+            storage.toDoList.set(req.user.email, arrOfLists)
         } else {
             storage.toDoList.set(req.user.email, [{
                 _id: 0,
                 name: req.body.name,
                 description: req.body.description,
-                items: []
+                itemsArr: []
             }]);
         }
         res.statusCode = 200;
@@ -65,7 +66,8 @@ toDoListsRouter
         if (storage.toDoList.get(req.user.email) !== undefined) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(storage.toDoList.get(user.email)[req.params.listId]);
+            console.dir()
+            res.json(storage.toDoList.get(req.user.email)[req.params.listId]);
         } else {
             res.statusCode = 404;
             res.end('Error searching list')
@@ -76,9 +78,10 @@ toDoListsRouter
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId] = req.body;
+            storage.toDoList.set(req.user.email, arrOfLists);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(storage.toDoList.get(user.email)[req.params.listId]);
+            res.json(storage.toDoList.get(req.user.email)[req.params.listId]);
         } else {
             res.statusCode = 404;
             res.end('Error searching list')
@@ -88,11 +91,13 @@ toDoListsRouter
     .post(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
-            req.body._id = arrOfLists[req.params.listId].items.length
-            arrOfLists[req.params.listId].items.push(req.body);
+            req.body._id = arrOfLists[req.params.listId].itemsArr.length
+            arrOfLists[req.params.listId].itemsArr.push(req.body);
+            storage.toDoList.set(req.user.email, arrOfLists)
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(storage.toDoList.get(user.email)[req.params.listId]);
+            console.dir(storage.toDoList.get(req.user.email)[req.params.listId])
+            res.json(storage.toDoList.get(req.user.email)[req.params.listId]);
         } else {
             res.statusCode = 404;
             res.end('Error searching list')
@@ -102,7 +107,8 @@ toDoListsRouter
     .delete(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
-            arrOfLists[req.params.listId].splice(req.params.listId);
+            arrOfLists.splice(req.params.listId);
+            storage.toDoList.set(req.user.email, arrOfLists);
             res.statusCode = 200;
             res.end('success');
         } else {
@@ -118,7 +124,7 @@ toDoListsRouter
         if (storage.toDoList.get(req.user.email) !== undefined) {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(storage.toDoList.get(req.user.email)[req.params.listId].items[req.params.itemId]);
+            res.json(storage.toDoList.get(req.user.email)[req.params.listId].itemsArr[req.params.itemId]);
         } else {
             res.statusCode = 404;
             res.end('Error searching list')
@@ -128,7 +134,8 @@ toDoListsRouter
     .put(auth.auth, (req, res, next) => {
         const arrOfLists = storage.toDoList.get(req.user.email);
         if (arrOfLists !== undefined) {
-            arrOfLists[req.params.listId].items[req.params.itemId] = req.body;
+            arrOfLists[req.params.listId].itemsArr[req.params.itemId] = req.body;
+            storage.toDoList.set(req.user.email, arrOfLists)
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(arrOfLists[req.params.listId].items[req.params.itemId]);

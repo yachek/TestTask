@@ -25,18 +25,22 @@ usersRouter
         res.statusCode = 403;
         res.end('PUT operation not supported on /users');
     })
-    .post(auth.auth, auth.isAdmin, (req, res, next) => {
+    .post((req, res, next) => {
         console.log(req.body)
         const stats = storage.users.getStats()
         console.log(stats)
         req.body._id = stats.keys;
-        storage.users.set(req.body.email, req.body)
+        req.body.isAdmin = false;
+        storage.users.set(req.body.email, req.body);
+
+        console.dir(req.body)
         if (storage.users.get(req.body.email) === undefined) {
             res.statusCode = 500;
             res.end('Error in adding new user!');
         } else {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
+            console.dir(storage.users.get(req.body.email))
             res.json(storage.users.get(req.body.email));
         }
     })

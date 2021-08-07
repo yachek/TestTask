@@ -1,29 +1,21 @@
 const storage = require('../localMemory')
+const CryptoAES = require("crypto-js/aes");
+const CryptoENC = require("crypto-js/enc-utf8");
 
 exports.auth = (req, res, next) => {
-    console.log(req.headers);
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-        const err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');
-        err.status = 401;
-        next(err);
-        return;
-    }
-
-    const auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const user = auth[0];
-    const pass = auth[1];
+    const user = req.headers.email;
+    const pass = CryptoAES.decrypt(req.headers.password, user).toString(CryptoENC)
     if (storage.users.has(user)) {
         const userLocal = storage.users.get(user);
-        if (userLocal.password === pass) {
+        if (CryptoAES.decrypt(userLocal.password, user).toString(CryptoENC) === pass) {
+            console.log('PASSWORD OK')
             req.user = userLocal
             next()
         } else {
-            next(new Error('You are not authorization!1'))
+            next(new Error('You are not authorization!'))
         }
     } else {
-        next(new Error('You are not authorization!2'))
+        next(new Error('You are not authorization!'))
     }
 }
 
