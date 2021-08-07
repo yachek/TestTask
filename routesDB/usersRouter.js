@@ -25,8 +25,8 @@ usersRouter
         res.statusCode = 403;
         res.end('PUT operation not supported on /users');
     })
-    .post(auth.auth, auth.isAdmin, (req, res, next) => {
-        console.log(req.body)
+    .post((req, res, next) => {
+        console.dir(req.body)
         User.create(req.body)
             .then((user) => {
                 res.statusCode = 200;
@@ -43,6 +43,13 @@ usersRouter
             }, (err) => next(err))
             .catch((err) => next(err));
     })
+
+usersRouter.post('/auth', auth.auth, (req, res, next) => {
+    console.log('response est`')
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(req.user);
+})
 
 usersRouter
     .route("/:userId")

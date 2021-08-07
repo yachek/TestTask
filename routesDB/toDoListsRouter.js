@@ -29,10 +29,12 @@ toDoListsRouter
     })
 
     .post(auth.auth, (req, res, next) => {
+        console.dir(req.body)
         ToDoList.create({
             name: req.body.name,
             description: req.body.description,
-            user: req.user._id
+            user: req.user._id,
+            expiresAt: req.body.expiresAt
         })
             .then((toDoList) => {
                 console.log('list Created ', toDoList);
@@ -44,7 +46,7 @@ toDoListsRouter
     })
 
     .delete(auth.auth, ( req, res, next) => {
-        ToDoList.findByIdAndDelete(req.body._id)
+        ToDoList.findByIdAndRemove({})
             .then((user) => {
                 res.statusCode = 200;
                 res.end('Deleting successful!')
@@ -93,8 +95,8 @@ toDoListsRouter
     })
 
     .delete(auth.auth, (req, res, next) => {
-        User.findByIdAndDelete(req.params.listId)
-            .then((user) => {
+        ToDoList.findByIdAndRemove(req.params.listId)
+            .then((todolist) => {
                 res.statusCode = 200;
                 res.end('Deleting successful!')
             }, (err) => next(err))
@@ -109,15 +111,16 @@ toDoListsRouter
             .then((toDoList) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(toDoList.itemsArr._id(req.params.itemId));
-                /*for(let i in toDoList.itemsArr) {
-                    if (i._id === req.params.itemId) {
-                        res.statusCode = 200;
-                        res.setHeader('Content-Type', 'application/json');
-                        res.json(i);
-                        break;
+                //res.json(toDoList.itemsArr._id(req.params.itemId));
+                let i;
+                toDoList.itemsArr.map((elem, index) => {
+                    if (elem._id.toString() === req.params.itemId){
+                        i = index
                     }
-                }*/
+                })
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(toDoList.itemsArr[i]);
             }, (err) => next(err))
             .catch((err) => next(err));
     })
@@ -125,9 +128,16 @@ toDoListsRouter
     .put(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
-                toDoList.itemsArr._id(req.params.itemId).name = req.body.name;
-                toDoList.itemsArr._id(req.params.itemId).description = req.body.description;
-                toDoList.itemsArr._id(req.params.itemId).time = req.body.time;
+                let i;
+                toDoList.itemsArr.map((elem, index) => {
+                    if (elem._id.toString() === req.params.itemId){
+                        i = index
+                    }
+                })
+                if (req.body.name) toDoList.itemsArr[i].name = req.body.name
+                if (req.body.description) toDoList.itemsArr[i].description = req.body.description
+                if (req.body.time) toDoList.itemsArr[i].time = req.body.time
+                if (!req.body.done.isNull) toDoList.itemsArr[i].done = req.body.done
                 toDoList.save()
                     .then((toDoList) => {
                         res.statusCode = 200;
@@ -147,7 +157,14 @@ toDoListsRouter
     .delete(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
-                toDoList.itemsArr._id(req.params.itemId).remove();
+                //toDoList.itemsArr._id(req.params.itemId).remove();
+                let i;
+                toDoList.itemsArr.map((elem, index) => {
+                    if (elem._id.toString() === req.params.itemId){
+                        i = index
+                    }
+                })
+                toDoList.itemsArr.splice(i, 1)
                 toDoList.save()
                     .then((toDoList) => {
                         res.statusCode = 200;

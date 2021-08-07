@@ -20,8 +20,8 @@ const options = {
 };
 
 const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-app.set('secPort',port+443);
+app.set('port', 8000);
+app.set('secPort', 8080);
 /**
  * Create HTTP server.
  */

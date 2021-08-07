@@ -10,7 +10,7 @@ const toDoListItemSchema = new mongoose.Schema({
         required: false
     },
     time: {
-        type: mongoose.Schema.Types.String,
+        type: mongoose.Schema.Types.Date,
         required: false
     },
     done: {
@@ -32,7 +32,11 @@ const toDoListSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    itemsArr: [toDoListItemSchema]
+    itemsArr: [toDoListItemSchema],
+    expiresAt: {
+        type: mongoose.Schema.Types.Date,
+        default: null
+    }
 })
 
 const ToDoList = mongoose.model('ToDoList', toDoListSchema);

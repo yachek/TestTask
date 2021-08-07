@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
+const cors = require('cors');
 
 const profileRouterDB = require('./routesDB/profileRouter');
 const toDoListsRouterDB = require('./routesDB/toDoListsRouter');
@@ -16,6 +17,8 @@ const mongoose = require('mongoose');
 const config = require('./config');
 
 const app = express();
+
+app.use(cors());
 
 app.all('*', (req, res, next) => {
     if (req.secure) {
@@ -44,11 +47,11 @@ if(config.memoryType === 'Persistent') {
         console.log(err);
     });
     app.use('/profile', profileRouterDB);
-    app.use('/toDoLists', toDoListsRouterDB);
+    app.use('/todolists', toDoListsRouterDB);
     app.use('/users', usersRouterDB);
 } else {
     app.use('/profile', profileRouterLocal);
-    app.use('/toDoLists', toDoListsRouterLocal);
+    app.use('/todolists', toDoListsRouterLocal);
     app.use('/users', usersRouterLocal);
 }
 
