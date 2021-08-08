@@ -109,8 +109,6 @@ toDoListsRouter
     .get(auth.auth, (req, res, next) => {
         ToDoList.findById(req.params.listId)
             .then((toDoList) => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
                 //res.json(toDoList.itemsArr._id(req.params.itemId));
                 let i;
                 toDoList.itemsArr.map((elem, index) => {
