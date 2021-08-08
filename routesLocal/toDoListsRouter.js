@@ -36,10 +36,15 @@ toDoListsRouter
             arrOfLists.push({
                 _id: arrOfLists.length,
                 name: req.body.name,
-                description: req.body.description,
+                description: req.body.description, // NU GO DO VLADA
                 itemsArr: []
             });
-            storage.toDoList.set(req.user.email, arrOfLists)
+            if (req.body.expiresAt) {
+                const ttl = (Date.parse(req.body.expiresAt) - Date.now())/100
+                storage.toDoList.set(req.user.email, arrOfLists, ttl)
+            } else {
+                storage.toDoList.set(req.user.email, arrOfLists)
+            }
         } else {
             storage.toDoList.set(req.user.email, [{
                 _id: 0,
@@ -79,7 +84,12 @@ toDoListsRouter
         if (arrOfLists !== undefined) {
             arrOfLists[req.params.listId].name = req.body.name;
             arrOfLists[req.params.listId].description = req.body.description;
-            storage.toDoList.set(req.user.email, arrOfLists);
+            if (req.body.expiresAt) {
+                const ttl = (Date.parse(req.body.expiresAt) - Date.now())/100
+                storage.toDoList.set(req.user.email, arrOfLists, ttl)
+            } else {
+                storage.toDoList.set(req.user.email, arrOfLists)
+            }
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
             res.json(storage.toDoList.get(req.user.email)[req.params.listId]);
